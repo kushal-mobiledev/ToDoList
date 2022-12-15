@@ -37,9 +37,29 @@ class HomeScreen extends React.Component {
 
   renderToDoItem = ({item, index}) => {
     return (
-      <View style={{marginBottom: 10, marginHorizontal: 20}}>
-        <TouchableOpacity onPress={this.removeItemFromList}>
-          <Text style={{fontSize: 26, color: 'white'}}>
+      <View
+        style={{
+          backgroundColor: index % 2 === 0 ? 'white' : 'pink',
+          borderBottomRightRadius: index % 2 === 0 ? 20 : 0,
+          borderTopLeftRadius: index % 2 === 0 ? 0 : 20,
+        }}
+        key={index}>
+        <TouchableOpacity
+          onPress={() => {
+            if (this.state.toDoListArray.length !== 0) {
+              let arr = this.state.toDoListArray.filter(
+                newItem => newItem !== item,
+              );
+              // let newIndex = this.state.toDoListArray.indexOf(item);
+              // let arr = this.state.toDoListArray.splice(newIndex, 0);
+              this.setState({toDoListArray: arr});
+            }
+          }}>
+          <Text
+            style={{
+              fontSize: 26,
+              color: index % 2 === 0 ? 'teal' : 'white',
+            }}>
             {index + 1} - {item}
           </Text>
         </TouchableOpacity>
@@ -74,9 +94,11 @@ class HomeScreen extends React.Component {
   };
 
   removeItemFromList = ({item, index}) => {
+    console.log(item + '-' + index);
     if (this.state.toDoListArray.length !== 0) {
-      // let arr = this.state.toDoListArray.filter(newItem => newItem === item);
-      let arr = this.state.toDoListArray.splice(index, 1);
+      let arr = this.state.toDoListArray.filter(newItem => newItem !== item);
+      // let newIndex = this.state.toDoListArray.indexOf(item);
+      // let arr = this.state.toDoListArray.splice(newIndex, 0);
       this.setState({toDoListArray: arr});
     }
   };
