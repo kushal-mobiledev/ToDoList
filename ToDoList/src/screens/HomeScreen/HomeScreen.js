@@ -7,9 +7,11 @@ import {
   FlatList,
   TextInput,
   TouchableOpacity,
+  StatusBar,
 } from 'react-native';
 import {HomeStyles} from './HomeStyles';
 import HeaderComponent from '../../components/HeaderComponent';
+import AppColors from '../../utils/AppColors';
 
 class HomeScreen extends React.Component {
   constructor(props) {
@@ -17,20 +19,49 @@ class HomeScreen extends React.Component {
     this.state = {
       todoItem: '',
       toDoListArray: [],
+      categoryArray: [
+        {
+          categoryID: 0,
+          categoryName: 'Work',
+          categoryWiseList: [
+            {
+              itemID: 0,
+              itemName: 'Meeting with Dan',
+            },
+            {
+              itemID: 1,
+              itemName: 'Complete Login module',
+            },
+          ],
+        },
+        {
+          categoryID: 1,
+          categoryName: 'Shopping',
+          categoryWiseList: [
+            {
+              itemID: 0,
+              itemName: 'Buy coffee',
+            },
+            {
+              itemID: 1,
+              itemName: 'Buy Macbook',
+            },
+          ],
+        },
+      ],
     };
   }
 
+  onClickAddCategories = () => {};
+
   renderHeader = () => {
     return (
-      <View
-        style={{
-          width: '100%',
-          height: '10%',
-          justifyContent: 'center',
-          borderBottomWidth: 1,
-          borderBottomColor: 'white',
-        }}>
-        <HeaderComponent title="ToDo List" />
+      <View style={HomeStyles.headerStyle}>
+        <HeaderComponent
+          title="Tasks"
+          subTitle="List"
+          onAddCategoriesClick={this.onClickAddCategories}
+        />
       </View>
     );
   };
@@ -67,13 +98,33 @@ class HomeScreen extends React.Component {
     );
   };
 
+  renderSeparator = () => {
+    return (
+      <View
+        style={{
+          height: 2,
+          width: '100%',
+          backgroundColor: AppColors.lightGray,
+        }}
+      />
+    );
+  };
+
+  renderCategory = () => {
+    return (
+      <View style={HomeStyles.categoryStyle}>
+        <Text style={HomeStyles.categoryTextStyle}>Categories</Text>
+      </View>
+    );
+  };
+
   renderList = () => {
     return (
       <View
         style={{
           width: '100%',
-          height: '78%',
-          backgroundColor: 'teal',
+          height: '73%',
+          backgroundColor: '#F7FFF7',
         }}>
         <FlatList
           data={this.state.toDoListArray}
@@ -155,8 +206,10 @@ class HomeScreen extends React.Component {
   render() {
     return (
       <SafeAreaView style={styles.rootContainer}>
+        <StatusBar hidden />
         <View style={HomeStyles.mainContainer}>
           {this.renderHeader()}
+          {this.renderCategory()}
           {this.renderList()}
           {this.renderInput()}
         </View>
@@ -168,7 +221,7 @@ class HomeScreen extends React.Component {
 const styles = StyleSheet.create({
   rootContainer: {
     flex: 1,
-    backgroundColor: 'teal',
+    backgroundColor: 'black',
   },
 });
 
