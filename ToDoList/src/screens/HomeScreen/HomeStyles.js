@@ -17,7 +17,7 @@ export const HomeStyles = StyleSheet.create({
     justifyContent: 'center',
   },
   categoryStyle: {
-    marginLeft: 20,
+    marginLeft: 15,
     width: '100%',
     height: '5%',
   },
@@ -25,5 +25,20 @@ export const HomeStyles = StyleSheet.create({
     fontSize: 28,
     fontFamily: AppFonts.regular,
     color: AppColors.darkGray,
+  },
+  separatorStyle: {
+    height: 2,
+    width: '100%',
+    backgroundColor: AppColors.lightGray,
+  },
+  categoryListStyle: {
+    width: '100%',
+    height: '5%',
+    marginTop: 10,
+  },
+  taskListStyle: {
+    width: '100%',
+    height: '67%',
+    backgroundColor: '#F7FFF7',
   },
 });

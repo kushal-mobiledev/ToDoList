@@ -31,7 +31,7 @@ const styles = StyleSheet.create({
     fontFamily: AppFonts.medium,
     color: AppColors.headerText,
     textAlign: 'center',
-    marginLeft: 20,
+    marginLeft: 15,
   },
   subTitleText: {
     fontSize: 32,
