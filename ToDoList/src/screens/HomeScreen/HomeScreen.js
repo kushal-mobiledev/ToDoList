@@ -10,6 +10,7 @@ import {
   StatusBar,
   ScrollView,
   KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import {HomeStyles} from './HomeStyles';
 import HeaderComponent from '../../components/HeaderComponent';
@@ -21,6 +22,7 @@ class HomeScreen extends React.Component {
     super(props);
     this.state = {
       todoItem: '',
+      selectedCategoryIndex: 0,
       selectedCategory: 'Work',
       toDoListArray: [],
       categoryArray: [
@@ -85,7 +87,7 @@ class HomeScreen extends React.Component {
     return (
       <View style={HomeStyles.headerStyle}>
         <HeaderComponent
-          title="Tasks"
+          title="ToDo"
           subTitle="List"
           onAddCategoriesClick={this.onClickAddCategories}
         />
@@ -94,7 +96,46 @@ class HomeScreen extends React.Component {
   };
 
   renderCategoryListItem = ({item, index}) => {
-    return <View></View>;
+    return (
+      <TouchableOpacity
+        key={item.categoryID}
+        onPress={() => {
+          this.setState({selectedCategory: item.categoryName});
+          let categoryArr = this.state.categoryArray;
+          categoryArr.forEach(element => {
+            if (item.categoryID === element.categoryID) {
+              element.isSelected = true;
+            } else {
+              element.isSelected = false;
+            }
+          });
+          this.setState({
+            categoryArray: categoryArr,
+          });
+        }}
+        style={{
+          marginHorizontal: 15,
+          borderRadius: 10,
+          borderWidth: 1,
+          borderColor: item.isSelected
+            ? AppColors.selectedCategory
+            : AppColors.lightGray,
+          paddingHorizontal: 10,
+        }}>
+        <View style={{}}>
+          <Text
+            style={{
+              fontSize: 20,
+              fontFamily: AppFonts.semiBold,
+              color: item.isSelected
+                ? AppColors.selectedCategory
+                : AppColors.darkGray,
+            }}>
+            {item.categoryName}
+          </Text>
+        </View>
+      </TouchableOpacity>
+    );
   };
 
   renderToDoItem = ({item, index}) => {
@@ -144,13 +185,16 @@ class HomeScreen extends React.Component {
   renderCategoryList = () => {
     return (
       <View style={HomeStyles.categoryListStyle}>
-        <ScrollView horizontal>
-          {this.state.categoryArray.map(item => {
+        <ScrollView horizontal nestedScrollEnabled>
+          {this.state.categoryArray.map((item, index) => {
             return (
               <TouchableOpacity
                 key={item.categoryID}
                 onPress={() => {
-                  this.setState({selectedCategory: item.categoryName});
+                  this.setState({
+                    selectedCategory: item.categoryName,
+                    selectedCategoryIndex: index,
+                  });
                   let categoryArr = this.state.categoryArray;
                   categoryArr.forEach(element => {
                     if (item.categoryID === element.categoryID) {
@@ -195,29 +239,69 @@ class HomeScreen extends React.Component {
           keyExtractor={({item, index}) => index}
           renderItem={this.renderCategoryListItem}
           showsHorizontalScrollIndicator={false}
+          nestedScrollEnabled
         /> */}
       </View>
     );
   };
 
+  componentDidMount() {}
+
   renderList = () => {
     return (
       <View style={HomeStyles.taskListStyle}>
-        <FlatList
+        <ScrollView nestedScrollEnabled>
+          {this.state.categoryArray.map((item, index) => {
+            if (index === this.state.selectedCategoryIndex) {
+              return (
+                <View
+                  style={{
+                    backgroundColor: 'pink',
+                  }}
+                  key={'Category' + item.categoryID}>
+                  <TouchableOpacity
+                    onPress={() => {
+                      if (this.state.categoryArray.length !== 0) {
+                        let arr = this.state.categoryArray.filter(
+                          newItem => newItem !== item,
+                        );
+                        // let newIndex = this.state.toDoListArray.indexOf(item);
+                        // let arr = this.state.toDoListArray.splice(newIndex, 0);
+                        this.setState({toDoListArray: arr});
+                      }
+                    }}>
+                    {item.categoryWiseList.map((todoItem, todoIndex) => {
+                      return (
+                        <Text
+                          key={'TODO' + todoIndex}
+                          style={{
+                            fontSize: 26,
+                          }}>
+                          {todoItem.itemName} - {todoIndex}
+                        </Text>
+                      );
+                    })}
+                  </TouchableOpacity>
+                </View>
+              );
+            }
+          })}
+        </ScrollView>
+        {/* <FlatList
           data={this.state.toDoListArray}
           extraData={this.state}
           keyExtractor={({item, index}) => index}
           renderItem={this.renderToDoItem}
-        />
+        /> */}
       </View>
     );
   };
 
   saveItemToList = () => {
     if (this.state.todoItem !== '') {
-      let arr = this.state.toDoListArray;
+      let arr = this.state.categoryArray[0].categoryWiseList;
       arr.push(this.state.todoItem);
-      this.setState({todoItem: '', toDoListArray: arr});
+      // this.setState({todoItem: '', categoryArray[0].categoryWiseList: arr});
     }
   };
 
@@ -283,16 +367,22 @@ class HomeScreen extends React.Component {
   render() {
     return (
       <SafeAreaView style={styles.rootContainer}>
-        <StatusBar hidden />
-        <View style={HomeStyles.mainContainer}>
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          style={{flex: 1}}>
+          <StatusBar hidden />
           {this.renderHeader()}
-          <ScrollView nestedScrollEnabled={true}>
-            {this.renderCategory()}
-            {this.renderCategoryList()}
-            {this.renderList()}
-          </ScrollView>
-          {this.renderInput()}
-        </View>
+
+          <View style={HomeStyles.mainContainer}>
+            <ScrollView
+              contentContainerStyle={{flex: 1, backgroundColor: 'red'}}>
+              {this.renderCategory()}
+              {this.renderCategoryList()}
+              {this.renderList()}
+              {this.renderInput()}
+            </ScrollView>
+          </View>
+        </KeyboardAvoidingView>
       </SafeAreaView>
     );
   }
@@ -301,7 +391,7 @@ class HomeScreen extends React.Component {
 const styles = StyleSheet.create({
   rootContainer: {
     flex: 1,
-    backgroundColor: 'black',
+    backgroundColor: AppColors.background,
   },
 });
 

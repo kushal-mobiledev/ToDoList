@@ -1,14 +1,17 @@
-import {StyleSheet} from 'react-native';
+import {StyleSheet, Dimensions} from 'react-native';
 import AppColors from '../../utils/AppColors';
 import AppFonts from '../../utils/AppFonts';
+
+const APP_WIDTH = Dimensions.get('screen').width;
+const APP_HEIGHT = Dimensions.get('screen').height;
 
 export const HomeStyles = StyleSheet.create({
   textStyle: {
     fontSize: 18,
   },
   mainContainer: {
-    width: '100%',
-    height: '100%',
+    width: APP_WIDTH,
+    height: APP_HEIGHT,
     backgroundColor: AppColors.background,
   },
   headerStyle: {
@@ -38,7 +41,7 @@ export const HomeStyles = StyleSheet.create({
   },
   taskListStyle: {
     width: '100%',
-    height: '67%',
+    height: '56%',
     backgroundColor: '#F7FFF7',
   },
 });
