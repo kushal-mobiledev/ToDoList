@@ -39,7 +39,7 @@ class HomeScreen extends React.Component {
             {
               itemID: 1,
               itemName: 'Complete Login module',
-              isItemDone: false,
+              isItemDone: true,
             },
           ],
         },
@@ -208,19 +208,15 @@ class HomeScreen extends React.Component {
                   });
                 }}
                 style={{
-                  marginHorizontal: 15,
-                  borderRadius: 10,
-                  borderWidth: 1,
+                  ...HomeStyles.categoryBtnStyle,
                   borderColor: item.isSelected
                     ? AppColors.selectedCategory
                     : AppColors.lightGray,
-                  paddingHorizontal: 10,
                 }}>
-                <View style={{}}>
+                <View>
                   <Text
                     style={{
-                      fontSize: 20,
-                      fontFamily: AppFonts.semiBold,
+                      ...HomeStyles.categoryListTextStyle,
                       color: item.isSelected
                         ? AppColors.selectedCategory
                         : AppColors.darkGray,
@@ -232,15 +228,6 @@ class HomeScreen extends React.Component {
             );
           })}
         </ScrollView>
-        {/* <FlatList
-          horizontal
-          data={this.state.categoryArray}
-          extraData={this.state}
-          keyExtractor={({item, index}) => index}
-          renderItem={this.renderCategoryListItem}
-          showsHorizontalScrollIndicator={false}
-          nestedScrollEnabled
-        /> */}
       </View>
     );
   };
@@ -248,70 +235,71 @@ class HomeScreen extends React.Component {
   componentDidMount() {}
 
   renderList = () => {
+    const {selectedCategoryIndex} = this.state;
     return (
       <View style={HomeStyles.taskListStyle}>
         <ScrollView nestedScrollEnabled>
           {this.state.categoryArray.map((item, index) => {
             if (index === this.state.selectedCategoryIndex) {
               return (
-                <View
-                  style={{
-                    backgroundColor: 'pink',
-                  }}
-                  key={'Category' + item.categoryID}>
-                  <TouchableOpacity
-                    onPress={() => {
-                      if (this.state.categoryArray.length !== 0) {
-                        let arr = this.state.categoryArray.filter(
-                          newItem => newItem !== item,
-                        );
-                        // let newIndex = this.state.toDoListArray.indexOf(item);
-                        // let arr = this.state.toDoListArray.splice(newIndex, 0);
-                        this.setState({toDoListArray: arr});
-                      }
-                    }}>
-                    {item.categoryWiseList.map((todoItem, todoIndex) => {
-                      return (
-                        <Text
-                          key={'TODO' + todoIndex}
-                          style={{
-                            fontSize: 26,
-                          }}>
-                          {todoItem.itemName} - {todoIndex}
-                        </Text>
-                      );
-                    })}
-                  </TouchableOpacity>
+                <View key={'Category' + item.categoryID}>
+                  {item.categoryWiseList.map((todoItem, todoIndex) => {
+                    return (
+                      <TouchableOpacity
+                        onPress={() => {
+                          if (item.categoryWiseList.length !== 0) {
+                            let categoryArr = this.state.categoryArray;
+                            let newCategory =
+                              categoryArr[selectedCategoryIndex]
+                                .categoryWiseList;
+                            newCategory[todoIndex].isItemDone = true;
+                            console.log(JSON.stringify(categoryArr));
+                            this.setState({categoryArray: categoryArr}, () => {
+                              this.forceUpdate();
+                            });
+                          }
+                        }}>
+                        <View style={HomeStyles.taskStyle}>
+                          <View style={HomeStyles.taskCheckBoxStyle} />
+                          <Text
+                            key={'TODO' + todoIndex}
+                            style={{
+                              color: item.isItemDone
+                                ? 'red'
+                                : AppColors.headerText,
+                            }}>
+                            {todoItem.itemName} -{' '}
+                            {item.isItemDone ? 'true' : 'false'}
+                          </Text>
+                        </View>
+                      </TouchableOpacity>
+                    );
+                  })}
                 </View>
               );
             }
           })}
         </ScrollView>
-        {/* <FlatList
-          data={this.state.toDoListArray}
-          extraData={this.state}
-          keyExtractor={({item, index}) => index}
-          renderItem={this.renderToDoItem}
-        /> */}
       </View>
     );
   };
 
   saveItemToList = () => {
-    if (this.state.todoItem !== '') {
-      let arr = this.state.categoryArray[0].categoryWiseList;
-      arr.push(this.state.todoItem);
-      // this.setState({todoItem: '', categoryArray[0].categoryWiseList: arr});
-    }
-  };
+    const {categoryArray, selectedCategoryIndex, todoItem} = this.state;
+    if (todoItem !== '') {
+      let categoryArr = categoryArray;
+      let newCategory = categoryArr[selectedCategoryIndex].categoryWiseList;
 
-  removeItemFromList = ({item, index}) => {
-    console.log(item + '-' + index);
-    if (this.state.toDoListArray.length !== 0) {
-      let arr = this.state.toDoListArray.filter(newItem => newItem !== item);
-      // let newIndex = this.state.toDoListArray.indexOf(item);
-      // let arr = this.state.toDoListArray.splice(newIndex, 0);
-      this.setState({toDoListArray: arr});
+      const addToDoObj = {
+        itemID: newCategory.length,
+        itemName: todoItem,
+        isItemDone: false,
+      };
+      newCategory.push(addToDoObj);
+
+      console.log('UPDATED OBJ: ' + JSON.stringify(categoryArr));
+
+      this.setState({todoItem: '', categoryArray: categoryArr});
     }
   };
 
@@ -374,8 +362,7 @@ class HomeScreen extends React.Component {
           {this.renderHeader()}
 
           <View style={HomeStyles.mainContainer}>
-            <ScrollView
-              contentContainerStyle={{flex: 1, backgroundColor: 'red'}}>
+            <ScrollView contentContainerStyle={{flex: 1}}>
               {this.renderCategory()}
               {this.renderCategoryList()}
               {this.renderList()}

@@ -39,9 +39,36 @@ export const HomeStyles = StyleSheet.create({
     height: '5%',
     marginTop: 10,
   },
+  categoryBtnStyle: {
+    marginHorizontal: 15,
+    borderRadius: 10,
+    borderWidth: 1,
+    paddingHorizontal: 10,
+  },
+  categoryListTextStyle: {
+    fontSize: 20,
+    fontFamily: AppFonts.semiBold,
+  },
   taskListStyle: {
     width: '100%',
-    height: '56%',
-    backgroundColor: '#F7FFF7',
+    height: '54%',
+    backgroundColor: AppColors.background,
+    marginLeft: 15,
+    marginTop: 10,
+  },
+  taskStyle: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  taskCheckBoxStyle: {
+    width: 20,
+    height: 20,
+    borderWidth: 2,
+    borderRadius: 5,
+    marginRight: 15,
+  },
+  taskTextStyle: {
+    fontSize: 26,
   },
 });
