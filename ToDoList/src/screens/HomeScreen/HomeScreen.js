@@ -4,11 +4,11 @@ import {
   View,
   Text,
   StyleSheet,
-  FlatList,
   TextInput,
   TouchableOpacity,
   StatusBar,
   ScrollView,
+  Image,
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
@@ -16,6 +16,7 @@ import {HomeStyles} from './HomeStyles';
 import HeaderComponent from '../../components/HeaderComponent';
 import AppColors from '../../utils/AppColors';
 import AppFonts from '../../utils/AppFonts';
+import AppImage from '../../utils/AppImage';
 
 class HomeScreen extends React.Component {
   constructor(props) {
@@ -81,7 +82,21 @@ class HomeScreen extends React.Component {
     };
   }
 
-  onClickAddCategories = () => {};
+  onClickAddCategories = () => {
+    const {categoryArray} = this.state;
+
+    let newCategory = categoryArray;
+
+    const addToDoObj = {
+      categoryID: newCategory.length,
+      categoryName: 'Category ' + newCategory.length,
+      isSelected: false,
+      categoryWiseList: [],
+    };
+    newCategory.push(addToDoObj);
+
+    this.setState({categoryArray: newCategory});
+  };
 
   renderHeader = () => {
     return (
@@ -136,42 +151,6 @@ class HomeScreen extends React.Component {
         </View>
       </TouchableOpacity>
     );
-  };
-
-  renderToDoItem = ({item, index}) => {
-    return (
-      <View
-        style={{
-          backgroundColor: index % 2 === 0 ? 'white' : 'pink',
-          borderBottomRightRadius: index % 2 === 0 ? 20 : 0,
-          borderTopLeftRadius: index % 2 === 0 ? 0 : 20,
-        }}
-        key={index}>
-        <TouchableOpacity
-          onPress={() => {
-            if (this.state.toDoListArray.length !== 0) {
-              let arr = this.state.toDoListArray.filter(
-                newItem => newItem !== item,
-              );
-              // let newIndex = this.state.toDoListArray.indexOf(item);
-              // let arr = this.state.toDoListArray.splice(newIndex, 0);
-              this.setState({toDoListArray: arr});
-            }
-          }}>
-          <Text
-            style={{
-              fontSize: 26,
-              color: index % 2 === 0 ? 'teal' : 'white',
-            }}>
-            {index + 1} - {item}
-          </Text>
-        </TouchableOpacity>
-      </View>
-    );
-  };
-
-  renderSeparator = () => {
-    return <View style={HomeStyles.separatorStyle} />;
   };
 
   renderCategory = () => {
@@ -246,6 +225,7 @@ class HomeScreen extends React.Component {
                   {item.categoryWiseList.map((todoItem, todoIndex) => {
                     return (
                       <TouchableOpacity
+                        key={'TODO' + todoItem.itemID}
                         onPress={() => {
                           if (item.categoryWiseList.length !== 0) {
                             let categoryArr = this.state.categoryArray;
@@ -254,22 +234,19 @@ class HomeScreen extends React.Component {
                                 .categoryWiseList;
                             newCategory[todoIndex].isItemDone = true;
                             console.log(JSON.stringify(categoryArr));
-                            this.setState({categoryArray: categoryArr}, () => {
-                              this.forceUpdate();
-                            });
+                            this.setState({categoryArray: categoryArr});
                           }
                         }}>
                         <View style={HomeStyles.taskStyle}>
                           <View style={HomeStyles.taskCheckBoxStyle} />
                           <Text
                             key={'TODO' + todoIndex}
-                            style={{
-                              color: item.isItemDone
-                                ? 'red'
-                                : AppColors.headerText,
-                            }}>
-                            {todoItem.itemName} -{' '}
-                            {item.isItemDone ? 'true' : 'false'}
+                            style={
+                              todoItem.isItemDone
+                                ? HomeStyles.taskDoneTextStyle
+                                : HomeStyles.taskTextStyle
+                            }>
+                            {todoItem.itemName}
                           </Text>
                         </View>
                       </TouchableOpacity>
@@ -288,14 +265,14 @@ class HomeScreen extends React.Component {
     const {categoryArray, selectedCategoryIndex, todoItem} = this.state;
     if (todoItem !== '') {
       let categoryArr = categoryArray;
-      let newCategory = categoryArr[selectedCategoryIndex].categoryWiseList;
+      let newToDoItem = categoryArr[selectedCategoryIndex].categoryWiseList;
 
       const addToDoObj = {
-        itemID: newCategory.length,
+        itemID: newToDoItem.length,
         itemName: todoItem,
         isItemDone: false,
       };
-      newCategory.push(addToDoObj);
+      newToDoItem.push(addToDoObj);
 
       console.log('UPDATED OBJ: ' + JSON.stringify(categoryArr));
 
@@ -309,18 +286,15 @@ class HomeScreen extends React.Component {
         style={{
           width: '100%',
           height: '12%',
-          backgroundColor: 'teal',
           justifyContent: 'center',
-          borderTopWidth: 1,
-          borderTopColor: 'white',
         }}>
-        <View style={{width: '80%', flexDirection: 'row'}}>
+        <View style={{width: '90%', flexDirection: 'row'}}>
           <TextInput
             style={{
               fontSize: 22,
-              width: '90%',
+              width: '87%',
               backgroundColor: 'white',
-              marginHorizontal: 20,
+              marginHorizontal: 15,
               borderRadius: 10,
             }}
             placeholder={`Add task to ${this.state.selectedCategory}`}
@@ -329,23 +303,14 @@ class HomeScreen extends React.Component {
           />
 
           <TouchableOpacity
-            style={{width: '10%', justifyContent: 'center', height: '100%'}}
+            style={{
+              width: '10%',
+              justifyContent: 'center',
+              height: '100%',
+              marginRight: 20,
+            }}
             onPress={this.saveItemToList}>
-            <View
-              style={{
-                backgroundColor: 'black',
-                justifyContent: 'center',
-                alignItems: 'center',
-              }}>
-              <Text
-                style={{
-                  fontSize: 22,
-                  color: 'white',
-                  fontWeight: 'bold',
-                }}>
-                +
-              </Text>
-            </View>
+            <Image source={AppImage.plus} style={{width: 32, height: 32}} />
           </TouchableOpacity>
         </View>
       </View>
@@ -355,21 +320,16 @@ class HomeScreen extends React.Component {
   render() {
     return (
       <SafeAreaView style={styles.rootContainer}>
-        <KeyboardAvoidingView
-          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-          style={{flex: 1}}>
-          <StatusBar hidden />
-          {this.renderHeader()}
+        <StatusBar hidden />
+        {this.renderHeader()}
 
-          <View style={HomeStyles.mainContainer}>
-            <ScrollView contentContainerStyle={{flex: 1}}>
-              {this.renderCategory()}
-              {this.renderCategoryList()}
-              {this.renderList()}
-              {this.renderInput()}
-            </ScrollView>
-          </View>
-        </KeyboardAvoidingView>
+        <View style={HomeStyles.mainContainer}>
+          {this.renderCategory()}
+          {this.renderCategoryList()}
+          {this.renderInput()}
+          {this.renderList()}
+        </View>
+        {/* </KeyboardAvoidingView> */}
       </SafeAreaView>
     );
   }

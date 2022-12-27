@@ -50,11 +50,11 @@ export const HomeStyles = StyleSheet.create({
     fontFamily: AppFonts.semiBold,
   },
   taskListStyle: {
-    width: '100%',
+    width: '95%',
     height: '54%',
     backgroundColor: AppColors.background,
-    marginLeft: 15,
     marginTop: 10,
+    alignSelf: 'center',
   },
   taskStyle: {
     flexDirection: 'row',
@@ -70,5 +70,12 @@ export const HomeStyles = StyleSheet.create({
   },
   taskTextStyle: {
     fontSize: 26,
+    color: AppColors.headerText,
+  },
+  taskDoneTextStyle: {
+    fontSize: 26,
+    color: AppColors.red,
+    textDecorationLine: 'line-through',
+    textDecorationColor: AppColors.red,
   },
 });
