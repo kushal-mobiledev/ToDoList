@@ -1,8 +1,7 @@
 import React from 'react';
-import {View, Text, StyleSheet, TouchableOpacity, Image} from 'react-native';
+import {View, Text, StyleSheet} from 'react-native';
 import AppColors from '../utils/AppColors';
 import AppFonts from '../utils/AppFonts';
-import AppImage from '../utils/AppImage';
 
 const HeaderComponent = props => {
   return (
@@ -11,11 +10,6 @@ const HeaderComponent = props => {
         {props.title}
         <Text style={styles.subTitleText}> {props.subTitle}</Text>
       </Text>
-      <View style={{marginRight: 20}}>
-        <TouchableOpacity onPress={props.onAddCategoriesClick}>
-          <Image source={AppImage.plus} style={{width: 32, height: 32}} />
-        </TouchableOpacity>
-      </View>
     </View>
   );
 };
@@ -36,7 +30,7 @@ const styles = StyleSheet.create({
   subTitleText: {
     fontSize: 32,
     fontFamily: AppFonts.light,
-    color: AppColors.lightGray,
+    color: AppColors.selectedCategory,
     textAlign: 'center',
   },
 });

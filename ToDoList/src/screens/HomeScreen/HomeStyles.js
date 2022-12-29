@@ -20,9 +20,12 @@ export const HomeStyles = StyleSheet.create({
     justifyContent: 'center',
   },
   categoryStyle: {
-    marginLeft: 15,
-    width: '100%',
+    width: '92%',
     height: '5%',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginHorizontal: 15,
+    alignItems: 'center',
   },
   categoryTextStyle: {
     fontSize: 28,
@@ -52,7 +55,9 @@ export const HomeStyles = StyleSheet.create({
   taskListStyle: {
     width: '95%',
     height: '54%',
-    backgroundColor: AppColors.background,
+    backgroundColor: AppColors.white,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
     marginTop: 10,
     alignSelf: 'center',
   },

@@ -11,6 +11,8 @@ import {
   Image,
   KeyboardAvoidingView,
   Platform,
+  Keyboard,
+  Modal,
 } from 'react-native';
 import {HomeStyles} from './HomeStyles';
 import HeaderComponent from '../../components/HeaderComponent';
@@ -23,79 +25,58 @@ class HomeScreen extends React.Component {
     super(props);
     this.state = {
       todoItem: '',
+      categoryItem: '',
       selectedCategoryIndex: 0,
       selectedCategory: 'Work',
+      isModalVisible: false,
       toDoListArray: [],
       categoryArray: [
         {
           categoryID: 0,
           categoryName: 'Work',
           isSelected: true,
-          categoryWiseList: [
-            {
-              itemID: 0,
-              itemName: 'Meeting with Dan',
-              isItemDone: false,
-            },
-            {
-              itemID: 1,
-              itemName: 'Complete Login module',
-              isItemDone: true,
-            },
-          ],
+          categoryWiseList: [],
         },
         {
           categoryID: 1,
           categoryName: 'Shopping',
           isSelected: false,
-          categoryWiseList: [
-            {
-              itemID: 0,
-              itemName: 'Buy coffee',
-              isItemDone: false,
-            },
-            {
-              itemID: 1,
-              itemName: 'Buy Macbook',
-              isItemDone: false,
-            },
-          ],
+          categoryWiseList: [],
         },
         {
           categoryID: 2,
           categoryName: 'Home',
           isSelected: false,
-          categoryWiseList: [
-            {
-              itemID: 0,
-              itemName: 'Buy decor',
-              isItemDone: false,
-            },
-            {
-              itemID: 1,
-              itemName: 'Buy Macbook',
-              isItemDone: false,
-            },
-          ],
+          categoryWiseList: [],
         },
       ],
     };
   }
 
-  onClickAddCategories = () => {
+  saveCategory = () => {
     const {categoryArray} = this.state;
 
-    let newCategory = categoryArray;
+    if (this.state.categoryItem !== '') {
+      let newCategory = categoryArray;
 
-    const addToDoObj = {
-      categoryID: newCategory.length,
-      categoryName: 'Category ' + newCategory.length,
-      isSelected: false,
-      categoryWiseList: [],
-    };
-    newCategory.push(addToDoObj);
+      const addToDoObj = {
+        categoryID: newCategory.length,
+        categoryName: this.state.categoryItem,
+        isSelected: false,
+        categoryWiseList: [],
+      };
+      newCategory.push(addToDoObj);
 
-    this.setState({categoryArray: newCategory});
+      this.setState({
+        categoryArray: newCategory,
+        isModalVisible: false,
+        categoryItem: '',
+      });
+    }
+  };
+
+  onClickAddCategories = () => {
+    this.setState({isModalVisible: true});
   };
 
   renderHeader = () => {
@@ -157,6 +138,12 @@ class HomeScreen extends React.Component {
     return (
       <View style={HomeStyles.categoryStyle}>
         <Text style={HomeStyles.categoryTextStyle}>Categories</Text>
+        <TouchableOpacity onPress={this.onClickAddCategories}>
+          <Image
+            source={AppImage.addCategory}
+            style={{width: 32, height: 32}}
+          />
+        </TouchableOpacity>
       </View>
     );
   };
@@ -221,7 +208,9 @@ class HomeScreen extends React.Component {
           {this.state.categoryArray.map((item, index) => {
             if (index === this.state.selectedCategoryIndex) {
               return (
-                <View key={'Category' + item.categoryID}>
+                <View
+                  key={'Category' + item.categoryID}
+                  style={{marginTop: 20, marginLeft: 20}}>
                   {item.categoryWiseList.map((todoItem, todoIndex) => {
                     return (
                       <TouchableOpacity
@@ -277,6 +266,7 @@ class HomeScreen extends React.Component {
       console.log('UPDATED OBJ: ' + JSON.stringify(categoryArr));
 
       this.setState({todoItem: '', categoryArray: categoryArr});
+      Keyboard.dismiss();
     }
   };
 
@@ -300,6 +290,7 @@ class HomeScreen extends React.Component {
             placeholder={`Add task to ${this.state.selectedCategory}`}
             value={this.state.todoItem}
             onChangeText={text => this.setState({todoItem: text})}
+            onSubmitEditing={this.saveItemToList}
           />
 
           <TouchableOpacity
@@ -317,12 +308,77 @@ class HomeScreen extends React.Component {
     );
   };
 
+  dismissModal = () => {
+    this.setState({isModalVisible: false});
+  };
+
+  renderModal = () => {
+    return (
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={this.state.isModalVisible}
+        onRequestClose={() => {
+          this.setState({isModalVisible: !this.state.isModalVisible});
+        }}>
+        <TouchableOpacity
+          style={styles.centeredView}
+          onPressOut={this.dismissModal}>
+          <View style={styles.modalView}>
+            <Text style={styles.titleText}>
+              Add
+              <Text style={styles.subTitleText}> Categories</Text>
+            </Text>
+            <View
+              style={{
+                marginTop: 20,
+                width: '100%',
+                height: '30%',
+                justifyContent: 'center',
+              }}>
+              <View style={{width: '90%', flexDirection: 'row'}}>
+                <TextInput
+                  style={{
+                    fontSize: 22,
+                    width: '87%',
+                    backgroundColor: 'white',
+                    marginHorizontal: 15,
+                    borderRadius: 10,
+                  }}
+                  autoFocus
+                  placeholder={'Add category'}
+                  value={this.state.categoryItem}
+                  onChangeText={text => this.setState({categoryItem: text})}
+                  onSubmitEditing={this.saveCategory}
+                />
+
+                <TouchableOpacity
+                  style={{
+                    width: '10%',
+                    justifyContent: 'center',
+                    height: '100%',
+                    marginRight: 20,
+                  }}
+                  onPress={this.saveCategory}>
+                  <Image
+                    source={AppImage.plus}
+                    style={{width: 32, height: 32}}
+                  />
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </TouchableOpacity>
+      </Modal>
+    );
+  };
+
   render() {
     return (
       <SafeAreaView style={styles.rootContainer}>
         <StatusBar hidden />
         {this.renderHeader()}
-
+        {this.renderModal()}
         <View style={HomeStyles.mainContainer}>
           {this.renderCategory()}
           {this.renderCategoryList()}
@@ -339,6 +395,37 @@ const styles = StyleSheet.create({
   rootContainer: {
     flex: 1,
     backgroundColor: AppColors.background,
+  },
+  titleText: {
+    fontSize: 32,
+    fontFamily: AppFonts.medium,
+    color: AppColors.headerText,
+  },
+  subTitleText: {
+    fontSize: 32,
+    fontFamily: AppFonts.light,
+    color: AppColors.selectedCategory,
+    textAlign: 'center',
+  },
+  centeredView: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0, 0.5)',
+  },
+  modalView: {
+    margin: 20,
+    backgroundColor: AppColors.white,
+    borderRadius: 20,
+    padding: 35,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
   },
 });
 
