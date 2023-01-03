@@ -9,8 +9,6 @@ import {
   StatusBar,
   ScrollView,
   Image,
-  KeyboardAvoidingView,
-  Platform,
   Keyboard,
   Modal,
 } from 'react-native';
@@ -40,12 +38,6 @@ class HomeScreen extends React.Component {
         {
           categoryID: 1,
           categoryName: 'Shopping',
-          isSelected: false,
-          categoryWiseList: [],
-        },
-        {
-          categoryID: 2,
-          categoryName: 'Home',
           isSelected: false,
           categoryWiseList: [],
         },
@@ -91,58 +83,12 @@ class HomeScreen extends React.Component {
     );
   };
 
-  renderCategoryListItem = ({item, index}) => {
-    return (
-      <TouchableOpacity
-        key={item.categoryID}
-        onPress={() => {
-          this.setState({selectedCategory: item.categoryName});
-          let categoryArr = this.state.categoryArray;
-          categoryArr.forEach(element => {
-            if (item.categoryID === element.categoryID) {
-              element.isSelected = true;
-            } else {
-              element.isSelected = false;
-            }
-          });
-          this.setState({
-            categoryArray: categoryArr,
-          });
-        }}
-        style={{
-          marginHorizontal: 15,
-          borderRadius: 10,
-          borderWidth: 1,
-          borderColor: item.isSelected
-            ? AppColors.selectedCategory
-            : AppColors.lightGray,
-          paddingHorizontal: 10,
-        }}>
-        <View style={{}}>
-          <Text
-            style={{
-              fontSize: 20,
-              fontFamily: AppFonts.semiBold,
-              color: item.isSelected
-                ? AppColors.selectedCategory
-                : AppColors.darkGray,
-            }}>
-            {item.categoryName}
-          </Text>
-        </View>
-      </TouchableOpacity>
-    );
-  };
-
   renderCategory = () => {
     return (
       <View style={HomeStyles.categoryStyle}>
         <Text style={HomeStyles.categoryTextStyle}>Categories</Text>
         <TouchableOpacity onPress={this.onClickAddCategories}>
-          <Image
-            source={AppImage.addCategory}
-            style={{width: 32, height: 32}}
-          />
+          <Image source={AppImage.addCategory} style={HomeStyles.imgStyle} />
         </TouchableOpacity>
       </View>
     );
@@ -207,42 +153,48 @@ class HomeScreen extends React.Component {
         <ScrollView nestedScrollEnabled>
           {this.state.categoryArray.map((item, index) => {
             if (index === this.state.selectedCategoryIndex) {
-              return (
-                <View
-                  key={'Category' + item.categoryID}
-                  style={{marginTop: 20, marginLeft: 20}}>
-                  {item.categoryWiseList.map((todoItem, todoIndex) => {
-                    return (
-                      <TouchableOpacity
-                        key={'TODO' + todoItem.itemID}
-                        onPress={() => {
-                          if (item.categoryWiseList.length !== 0) {
-                            let categoryArr = this.state.categoryArray;
-                            let newCategory =
-                              categoryArr[selectedCategoryIndex]
-                                .categoryWiseList;
-                            newCategory[todoIndex].isItemDone = true;
-                            console.log(JSON.stringify(categoryArr));
-                            this.setState({categoryArray: categoryArr});
-                          }
-                        }}>
-                        <View style={HomeStyles.taskStyle}>
-                          <View style={HomeStyles.taskCheckBoxStyle} />
-                          <Text
-                            key={'TODO' + todoIndex}
-                            style={
-                              todoItem.isItemDone
-                                ? HomeStyles.taskDoneTextStyle
-                                : HomeStyles.taskTextStyle
-                            }>
-                            {todoItem.itemName}
-                          </Text>
-                        </View>
-                      </TouchableOpacity>
-                    );
-                  })}
-                </View>
-              );
+              if (item.categoryWiseList.length === 0) {
+                return (
+                  <Text style={HomeStyles.noTaskStyle}>No tasks to show</Text>
+                );
+              } else {
+                return (
+                  <View
+                    key={'Category' + item.categoryID}
+                    style={{marginTop: 20, marginLeft: 20}}>
+                    {item.categoryWiseList.map((todoItem, todoIndex) => {
+                      return (
+                        <TouchableOpacity
+                          key={'TODO' + todoItem.itemID}
+                          onPress={() => {
+                            if (item.categoryWiseList.length !== 0) {
+                              let categoryArr = this.state.categoryArray;
+                              let newCategory =
+                                categoryArr[selectedCategoryIndex]
+                                  .categoryWiseList;
+                              newCategory[todoIndex].isItemDone = true;
+                              console.log(JSON.stringify(categoryArr));
+                              this.setState({categoryArray: categoryArr});
+                            }
+                          }}>
+                          <View style={HomeStyles.taskStyle}>
+                            <View style={HomeStyles.taskCheckBoxStyle} />
+                            <Text
+                              key={'TODO' + todoIndex}
+                              style={
+                                todoItem.isItemDone
+                                  ? HomeStyles.taskDoneTextStyle
+                                  : HomeStyles.taskTextStyle
+                              }>
+                              {todoItem.itemName}
+                            </Text>
+                          </View>
+                        </TouchableOpacity>
+                      );
+                    })}
+                  </View>
+                );
+              }
             }
           })}
         </ScrollView>
@@ -272,36 +224,22 @@ class HomeScreen extends React.Component {
 
   renderInput = () => {
     return (
-      <View
-        style={{
-          width: '100%',
-          height: '12%',
-          justifyContent: 'center',
-        }}>
+      <View style={HomeStyles.taskTextInputContainer}>
         <View style={{width: '90%', flexDirection: 'row'}}>
           <TextInput
-            style={{
-              fontSize: 22,
-              width: '87%',
-              backgroundColor: 'white',
-              marginHorizontal: 15,
-              borderRadius: 10,
-            }}
+            style={HomeStyles.taskTextInput}
+            cursorColor={AppColors.selectedCategory}
             placeholder={`Add task to ${this.state.selectedCategory}`}
+            placeholderTextColor={AppColors.gray}
             value={this.state.todoItem}
             onChangeText={text => this.setState({todoItem: text})}
             onSubmitEditing={this.saveItemToList}
           />
 
           <TouchableOpacity
-            style={{
-              width: '10%',
-              justifyContent: 'center',
-              height: '100%',
-              marginRight: 20,
-            }}
+            style={HomeStyles.taskAddBtn}
             onPress={this.saveItemToList}>
-            <Image source={AppImage.plus} style={{width: 32, height: 32}} />
+            <Image source={AppImage.plus} style={HomeStyles.imgStyle} />
           </TouchableOpacity>
         </View>
       </View>
@@ -327,43 +265,23 @@ class HomeScreen extends React.Component {
           <View style={styles.modalView}>
             <Text style={styles.titleText}>
               Add
-              <Text style={styles.subTitleText}> Categories</Text>
+              <Text style={styles.subTitleText}> Category</Text>
             </Text>
-            <View
-              style={{
-                marginTop: 20,
-                width: '100%',
-                height: '30%',
-                justifyContent: 'center',
-              }}>
+            <View style={HomeStyles.modalTextInputContainer}>
               <View style={{width: '90%', flexDirection: 'row'}}>
                 <TextInput
-                  style={{
-                    fontSize: 22,
-                    width: '87%',
-                    backgroundColor: 'white',
-                    marginHorizontal: 15,
-                    borderRadius: 10,
-                  }}
+                  style={HomeStyles.modalTextInputStyle}
+                  cursorColor={AppColors.selectedCategory}
                   autoFocus
-                  placeholder={'Add category'}
                   value={this.state.categoryItem}
                   onChangeText={text => this.setState({categoryItem: text})}
                   onSubmitEditing={this.saveCategory}
                 />
 
                 <TouchableOpacity
-                  style={{
-                    width: '10%',
-                    justifyContent: 'center',
-                    height: '100%',
-                    marginRight: 20,
-                  }}
+                  style={HomeStyles.modalAddBtn}
                   onPress={this.saveCategory}>
-                  <Image
-                    source={AppImage.plus}
-                    style={{width: 32, height: 32}}
-                  />
+                  <Image source={AppImage.plus} style={HomeStyles.imgStyle} />
                 </TouchableOpacity>
               </View>
             </View>
@@ -415,7 +333,7 @@ const styles = StyleSheet.create({
   },
   modalView: {
     margin: 20,
-    backgroundColor: AppColors.white,
+    backgroundColor: AppColors.background,
     borderRadius: 20,
     padding: 35,
     shadowColor: '#000',
