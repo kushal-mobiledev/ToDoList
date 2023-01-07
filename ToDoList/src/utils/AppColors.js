@@ -7,6 +7,7 @@ const AppColors = {
   selectedCategory: '#05668d',
   red: '#F00',
   white: '#FFFFFF',
+  transparent: 'transparent',
 };
 
 export default AppColors;

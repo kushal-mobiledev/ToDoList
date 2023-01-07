@@ -11,12 +11,14 @@ import {
   Image,
   Keyboard,
   Modal,
+  Alert,
 } from 'react-native';
 import {HomeStyles} from './HomeStyles';
 import HeaderComponent from '../../components/HeaderComponent';
 import AppColors from '../../utils/AppColors';
 import AppFonts from '../../utils/AppFonts';
 import AppImage from '../../utils/AppImage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 class HomeScreen extends React.Component {
   constructor(props) {
@@ -27,7 +29,6 @@ class HomeScreen extends React.Component {
       selectedCategoryIndex: 0,
       selectedCategory: 'Work',
       isModalVisible: false,
-      toDoListArray: [],
       categoryArray: [
         {
           categoryID: 0,
@@ -59,12 +60,32 @@ class HomeScreen extends React.Component {
       };
       newCategory.push(addToDoObj);
 
-      this.setState({
-        categoryArray: newCategory,
-        isModalVisible: false,
-        categoryItem: '',
-      });
+      this.setState(
+        {
+          categoryArray: newCategory,
+          isModalVisible: false,
+          categoryItem: '',
+        },
+        () => {
+          // save updated list to async storage
+          this.saveListToAsyncStorage();
+        },
+      );
+    } else {
+      Alert.alert('Empty field!', 'Please add category.');
     }
+  };
+
+  saveListToAsyncStorage = () => {
+    const jsonValue = JSON.stringify(this.state.categoryArray);
+    AsyncStorage.setItem('@TODO_CategoryArray', jsonValue)
+      .then(isSuccess => {})
+      .catch(err => {
+        Alert.alert(
+          'Error!',
+          'Something went wrong while saving your data. Please retry.',
+        );
+      });
   };
 
   onClickAddCategories = () => {
@@ -101,7 +122,7 @@ class HomeScreen extends React.Component {
           {this.state.categoryArray.map((item, index) => {
             return (
               <TouchableOpacity
-                key={item.categoryID}
+                key={'TODO' + item.categoryID}
                 onPress={() => {
                   this.setState({
                     selectedCategory: item.categoryName,
@@ -121,6 +142,9 @@ class HomeScreen extends React.Component {
                 }}
                 style={{
                   ...HomeStyles.categoryBtnStyle,
+                  backgroundColor: item.isSelected
+                    ? AppColors.selectedCategory
+                    : AppColors.transparent,
                   borderColor: item.isSelected
                     ? AppColors.selectedCategory
                     : AppColors.lightGray,
@@ -130,7 +154,7 @@ class HomeScreen extends React.Component {
                     style={{
                       ...HomeStyles.categoryListTextStyle,
                       color: item.isSelected
-                        ? AppColors.selectedCategory
+                        ? AppColors.white
                         : AppColors.darkGray,
                     }}>
                     {item.categoryName}
@@ -144,7 +168,37 @@ class HomeScreen extends React.Component {
     );
   };
 
-  componentDidMount() {}
+  componentDidMount() {
+    // TODO: Retrieve list from async storage
+    this.retrieveListFromAsyncStorage();
+  }
+
+  retrieveListFromAsyncStorage = () => {
+    AsyncStorage.getItem('@TODO_CategoryArray')
+      .then(value => {
+        if (value !== null) {
+          const jsonValue = JSON.parse(value);
+
+          // first category should be selected by default
+          let categoryArr = jsonValue;
+          categoryArr.forEach(element => {
+            if (element.categoryID === 0) {
+              element.isSelected = true;
+            } else {
+              element.isSelected = false;
+            }
+          });
+          this.setState({
+            categoryArray: categoryArr,
+            selectedCategoryIndex: 0,
+            selectedCategory: 'Work',
+          });
+        }
+      })
+      .catch(err => {
+        alert('Something went wrong while retrieving list!');
+      });
+  };
 
   renderList = () => {
     const {selectedCategoryIndex} = this.state;
@@ -215,10 +269,13 @@ class HomeScreen extends React.Component {
       };
       newToDoItem.push(addToDoObj);
 
-      console.log('UPDATED OBJ: ' + JSON.stringify(categoryArr));
-
-      this.setState({todoItem: '', categoryArray: categoryArr});
+      this.setState({todoItem: '', categoryArray: categoryArr}, () => {
+        // save updated list to async storage
+        this.saveListToAsyncStorage();
+      });
       Keyboard.dismiss();
+    } else {
+      Alert.alert('Empty field!', 'Please add task.');
     }
   };
 

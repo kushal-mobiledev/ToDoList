@@ -47,6 +47,8 @@ export const HomeStyles = StyleSheet.create({
     borderRadius: 10,
     borderWidth: 1,
     paddingHorizontal: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   categoryListTextStyle: {
     fontSize: 20,
